@@ -1,10 +1,14 @@
 package kiwi.jordancrawford.kiwiexplorer;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.location.Geocoder;
 import android.location.Location;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -37,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements
     private Location lastLocation;
     private LocationRequest locationRequest;
     private boolean isRequestingLocationUpdates = false;
+    private CityResultReceiver cityResultReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +57,28 @@ public class MainActivity extends AppCompatActivity implements
                     .build();
         }
 
+        cityResultReceiver = new CityResultReceiver(new Handler());
+
         // Setup a location request.
         locationRequest = new LocationRequest();
         locationRequest.setInterval(LOCATION_INTERVAL);
         locationRequest.setFastestInterval(FASTEST_LOCATION_INTERVAL);
         locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
+    }
+
+    @SuppressLint("ParcelCreator")
+    class CityResultReceiver extends ResultReceiver {
+        public CityResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (resultCode == FetchCityIntentService.Constants.SUCCESS_RESULT) {
+                String city = resultData.getString(FetchCityIntentService.Constants.RESULT_DATA_KEY);
+                System.out.println("In main activity, city: " + city);
+            }
+        }
     }
 
     protected void onStart() {
@@ -66,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements
 
     protected void onStop() {
         googleApiClient.disconnect();
+        // TODO: Stop requesting updates
         super.onStop();
     }
 
@@ -185,5 +208,16 @@ public class MainActivity extends AppCompatActivity implements
     public void onLocationChanged(Location location) {
         System.out.println("Location changed");
         System.out.println(location);
+
+        if (Geocoder.isPresent()) {
+            // Get the city.
+            Intent intent = new Intent(this, FetchCityIntentService.class);
+            intent.putExtra(FetchCityIntentService.Constants.RECEIVER, cityResultReceiver);
+            intent.putExtra(FetchCityIntentService.Constants.LOCATION_DATA_EXTRA, location);
+            startService(intent);
+            System.out.println("Starting fetch city job.");
+        } else {
+            System.out.println("Geocoder not present.");
+        }
     }
 }
