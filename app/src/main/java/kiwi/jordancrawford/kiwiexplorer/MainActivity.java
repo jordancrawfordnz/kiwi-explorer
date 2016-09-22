@@ -16,6 +16,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
@@ -25,7 +26,8 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        ActivityCompat.OnRequestPermissionsResultCallback {
+        ActivityCompat.OnRequestPermissionsResultCallback,
+        LocationListener {
     private static final int REQUEST_LOCATION_PERMISSION_REQUEST_CODE = 1;
     private static final int REQUEST_CHECK_SETTINGS_CODE = 2;
     private static final long LOCATION_INTERVAL = 1000;
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements
     private GoogleApiClient googleApiClient;
     private Location lastLocation;
     private LocationRequest locationRequest;
+    private boolean isRequestingLocationUpdates = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,7 +162,13 @@ public class MainActivity extends AppCompatActivity implements
     public void onAllowedToGetLocation() {
         System.out.println("Allowed to get location!");
             // TODO: This may not always be being called when its meant to be? Having issues just after setting the location permission.
-        getLocation();
+        if (!isRequestingLocationUpdates) {
+            //noinspection MissingPermission
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    googleApiClient, locationRequest, this);
+            isRequestingLocationUpdates = true;
+        }
+
     }
 
     @Override
@@ -170,5 +179,11 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         System.out.println("Could not connect to Google Play Services.");
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        System.out.println("Location changed");
+        System.out.println(location);
     }
 }
