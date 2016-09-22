@@ -2,6 +2,7 @@ package kiwi.jordancrawford.kiwiexplorer;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -64,6 +65,11 @@ public class MainActivity extends AppCompatActivity implements
         locationRequest.setInterval(LOCATION_INTERVAL);
         locationRequest.setFastestInterval(FASTEST_LOCATION_INTERVAL);
         locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
+
+        // Start the service.
+        System.out.println("Starting the service.");
+        ComponentName comp = new ComponentName(this.getPackageName(), BackgroundLocationService.class.getName());
+        ComponentName service = this.startService(new Intent().setComponent(comp));
     }
 
     @SuppressLint("ParcelCreator")

@@ -16,6 +16,22 @@
             </intent-filter>
         </activity>
 
+        <receiver android:name=".ServiceStartReceiver"
+            android:enabled="true"
+            android:exported="false"
+            android:label="ServiceStartReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.location.PROVIDERS_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".BackgroundLocationService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <service
             android:name=".FetchCityIntentService"
             android:exported="false"/>
