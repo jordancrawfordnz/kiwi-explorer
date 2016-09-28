@@ -31,8 +31,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        ActivityCompat.OnRequestPermissionsResultCallback,
-        LocationListener {
+        ActivityCompat.OnRequestPermissionsResultCallback {
     private static final int REQUEST_LOCATION_PERMISSION_REQUEST_CODE = 1;
     private static final int REQUEST_CHECK_SETTINGS_CODE = 2;
     private static final long LOCATION_INTERVAL = 1000;
@@ -49,6 +48,12 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Setup a location request.
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(LOCATION_INTERVAL);
+        locationRequest.setFastestInterval(FASTEST_LOCATION_INTERVAL);
+        locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
+
         // Get a Google API client.
         if (googleApiClient == null) {
             googleApiClient = new GoogleApiClient.Builder(this)
@@ -56,15 +61,11 @@ public class MainActivity extends AppCompatActivity implements
                     .addOnConnectionFailedListener(this)
                     .addApi(LocationServices.API)
                     .build();
+        } else {
+            checkLocationPermission();
         }
 
         cityResultReceiver = new CityResultReceiver(new Handler());
-
-        // Setup a location request.
-        locationRequest = new LocationRequest();
-        locationRequest.setInterval(LOCATION_INTERVAL);
-        locationRequest.setFastestInterval(FASTEST_LOCATION_INTERVAL);
-        locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
 
         // Start the service.
         System.out.println("Starting the service.");
@@ -112,11 +113,11 @@ public class MainActivity extends AppCompatActivity implements
 
     // == Location permissions
     private void checkLocationPermission() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (PermissionHelper.hasPermission(this)) {
             onHaveLocationPermission();
-        } else { // If don't have permission to access to the coarse location, request it.
+        } else { // If don't have the reequired permission, request it.
             ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.ACCESS_COARSE_LOCATION
+                    PermissionHelper.REQUIRED_PERMISSION
             }, REQUEST_LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
@@ -189,41 +190,20 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void onAllowedToGetLocation() {
-        System.out.println("Allowed to get location!");
-            // TODO: This may not always be being called when its meant to be? Having issues just after setting the location permission.
-        if (!isRequestingLocationUpdates) {
-            //noinspection MissingPermission
-            LocationServices.FusedLocationApi.requestLocationUpdates(
-                    googleApiClient, locationRequest, this);
-            isRequestingLocationUpdates = true;
-        }
-
+        // TODO: Call the BackgroundLocationService.
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        // TODO?
+        googleApiClient = null;
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        System.out.println("Could not connect to Google Play Services.");
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        System.out.println("Location changed");
-        System.out.println(location);
-
-        if (Geocoder.isPresent()) {
-            // Get the city.
-            Intent intent = new Intent(this, FetchCityIntentService.class);
-            intent.putExtra(FetchCityIntentService.Constants.RECEIVER, cityResultReceiver);
-            intent.putExtra(FetchCityIntentService.Constants.LOCATION_DATA_EXTRA, location);
-            startService(intent);
-            System.out.println("Starting fetch city job.");
-        } else {
-            System.out.println("Geocoder not present.");
+        googleApiClient = null;
+        if (connectionResult.hasResolution()) {
+            // TODO: Display an appropriate result to the user.
         }
+        System.out.println("Could not connect to Google Play Services.");
     }
 }
