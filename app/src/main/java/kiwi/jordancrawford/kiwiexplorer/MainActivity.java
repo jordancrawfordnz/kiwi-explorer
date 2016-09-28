@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements
         // If the user accepted the location permission, request the location.
         if (requestCode == REQUEST_LOCATION_PERMISSION_REQUEST_CODE) {
             System.out.println("On request permission result");
-            if (permissions.length == 1 && permissions[0].equals(Manifest.permission.ACCESS_COARSE_LOCATION) && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (PermissionHelper.hasPermission(this)) {
                 onHaveLocationPermission();
             }
         }

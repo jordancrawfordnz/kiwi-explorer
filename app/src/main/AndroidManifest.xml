@@ -28,6 +28,8 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".BackgroundLocationReceiver" />
+
         <service android:name=".BackgroundLocationService"
             android:enabled="true"
             android:exported="true"></service>
@@ -37,6 +39,6 @@
             android:exported="false"/>
     </application>
 
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
 </manifest>

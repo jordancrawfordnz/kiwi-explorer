@@ -1,6 +1,7 @@
 package kiwi.jordancrawford.kiwiexplorer;
 
 import android.annotation.SuppressLint;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -31,12 +32,12 @@ import java.util.Date;
  * Created by Jordan on 22/09/16.
  */
 public class BackgroundLocationService extends Service implements
-        GoogleApiClient.ConnectionCallbacks,
-        LocationListener {
+        GoogleApiClient.ConnectionCallbacks {
+    public static final int LOCATION_REQUEST_RESULT_CODE = 1;
+
     private Date creationTime;
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
-    private CityResultReceiver cityResultReceiver;
     private boolean isRequestingLocationUpdates;
 
     private static final long LOCATION_INTERVAL = 1000;
@@ -68,9 +69,6 @@ public class BackgroundLocationService extends Service implements
         locationRequest.setInterval(LOCATION_INTERVAL);
         locationRequest.setFastestInterval(FASTEST_LOCATION_INTERVAL);
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-
-        // Setup the city resolver.
-        cityResultReceiver = new CityResultReceiver(new Handler());
     }
 
     @Override
@@ -79,8 +77,10 @@ public class BackgroundLocationService extends Service implements
         isRequestingLocationUpdates = false;
         if (googleApiClient != null) {
             googleApiClient.disconnect();
+            googleApiClient.unregisterConnectionCallbacks(this);
             googleApiClient = null;
         }
+        super.onDestroy();
     }
 
     // == Google Play Services Callbacks
@@ -116,7 +116,7 @@ public class BackgroundLocationService extends Service implements
     public int onStartCommand (Intent intent, int flags, int startId) {
         System.out.println("On start command. Creation time: " + DateFormat.getDateTimeInstance().format(creationTime));
         if (isRequestingLocationUpdates) {
-            return START_NOT_STICKY;
+            return START_STICKY;
         }
 
         // Get a Google API client if one is needed.
@@ -173,42 +173,11 @@ public class BackgroundLocationService extends Service implements
     public void onReadyToGetLocation() {
         System.out.println("Ready to get location");
         if (!isRequestingLocationUpdates) {
+            Intent intent = new Intent(this, BackgroundLocationReceiver.class);
+            PendingIntent locationIntent = PendingIntent.getBroadcast(getApplicationContext(), LOCATION_REQUEST_RESULT_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
             //noinspection MissingPermission (we request permissions in onHasGooglePlayAPI).
-            LocationServices.FusedLocationApi.requestLocationUpdates(
-                    googleApiClient, locationRequest, this);
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, locationIntent);
             isRequestingLocationUpdates = true;
-        }
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        System.out.println("Location changed");
-        System.out.println(location);
-
-        if (Geocoder.isPresent()) {
-            // Get the city.
-            Intent intent = new Intent(this, FetchCityIntentService.class);
-            intent.putExtra(FetchCityIntentService.Constants.RECEIVER, cityResultReceiver);
-            intent.putExtra(FetchCityIntentService.Constants.LOCATION_DATA_EXTRA, location);
-            startService(intent);
-            System.out.println("Starting fetch city job.");
-        } else {
-            System.out.println("Geocoder not present.");
-        }
-    }
-
-    @SuppressLint("ParcelCreator")
-    class CityResultReceiver extends ResultReceiver {
-        public CityResultReceiver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        protected void onReceiveResult(int resultCode, Bundle resultData) {
-            if (resultCode == FetchCityIntentService.Constants.SUCCESS_RESULT) {
-                String city = resultData.getString(FetchCityIntentService.Constants.RESULT_DATA_KEY);
-                System.out.println("In background service, city: " + city);
-            }
         }
     }
 
