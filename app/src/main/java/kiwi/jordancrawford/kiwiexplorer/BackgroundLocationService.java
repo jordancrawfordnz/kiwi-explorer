@@ -1,24 +1,17 @@
 package kiwi.jordancrawford.kiwiexplorer;
 
-import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.IntentSender;
-import android.location.Geocoder;
-import android.location.Location;
 import android.os.Binder;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.ResultReceiver;
 import android.support.annotation.Nullable;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
@@ -40,9 +33,6 @@ public class BackgroundLocationService extends Service implements
     private LocationRequest locationRequest;
     private boolean isRequestingLocationUpdates;
 
-    private static final long LOCATION_INTERVAL = 1000;
-    private static final long FASTEST_LOCATION_INTERVAL = 1000;
-
     IBinder mBinder = new LocalBinder();
 
     // == Service setup.
@@ -62,13 +52,8 @@ public class BackgroundLocationService extends Service implements
     public void onCreate() {
         super.onCreate();
         creationTime = new Date();
+        locationRequest = LocationSettingHelper.getLocationRequest();
         System.out.println("Background location service created. Creation time: " + DateFormat.getDateTimeInstance().format(creationTime));
-
-        // Setup the location request.
-        locationRequest = new LocationRequest();
-        locationRequest.setInterval(LOCATION_INTERVAL);
-        locationRequest.setFastestInterval(FASTEST_LOCATION_INTERVAL);
-        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
 
     @Override
@@ -114,7 +99,6 @@ public class BackgroundLocationService extends Service implements
      * @return
      */
     public int onStartCommand (Intent intent, int flags, int startId) {
-        System.out.println("On start command. Creation time: " + DateFormat.getDateTimeInstance().format(creationTime));
         if (isRequestingLocationUpdates) {
             return START_STICKY;
         }
@@ -139,22 +123,16 @@ public class BackgroundLocationService extends Service implements
      * Gets permissions and checks the location settings are correct. If these checks are successful, calls onReadyToGetLocation.
      */
     public void onHasGooglePlayAPI() {
-        System.out.println("Has Google API.");
         // Check the permissions.
         if (PermissionHelper.hasPermission(getApplicationContext())) {
-            System.out.println("Has permission");
             // Check the location settings are correct.
             LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                     .addLocationRequest(locationRequest);
-            System.out.println(googleApiClient);
-            System.out.println(locationRequest);
             PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient,
                             builder.build());
             result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
                 @Override
                 public void onResult(LocationSettingsResult result) {
-                    System.out.println("Has location settings result.");
-                    System.out.println(result);
                     final Status status = result.getStatus();
                     switch (status.getStatusCode()) {
                         case LocationSettingsStatusCodes.SUCCESS:
@@ -171,7 +149,6 @@ public class BackgroundLocationService extends Service implements
      * Called when all permissions have been checked and the location can be requested.
      */
     public void onReadyToGetLocation() {
-        System.out.println("Ready to get location");
         if (!isRequestingLocationUpdates) {
             Intent intent = new Intent(this, BackgroundLocationReceiver.class);
             PendingIntent locationIntent = PendingIntent.getBroadcast(getApplicationContext(), LOCATION_REQUEST_RESULT_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT);

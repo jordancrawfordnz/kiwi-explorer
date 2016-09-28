@@ -34,25 +34,12 @@ public class MainActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback {
     private static final int REQUEST_LOCATION_PERMISSION_REQUEST_CODE = 1;
     private static final int REQUEST_CHECK_SETTINGS_CODE = 2;
-    private static final long LOCATION_INTERVAL = 1000;
-    private static final long FASTEST_LOCATION_INTERVAL = 1000;
-
     private GoogleApiClient googleApiClient;
-    private Location lastLocation;
-    private LocationRequest locationRequest;
-    private boolean isRequestingLocationUpdates = false;
-    private CityResultReceiver cityResultReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Setup a location request.
-        locationRequest = new LocationRequest();
-        locationRequest.setInterval(LOCATION_INTERVAL);
-        locationRequest.setFastestInterval(FASTEST_LOCATION_INTERVAL);
-        locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
 
         // Get a Google API client.
         if (googleApiClient == null) {
@@ -65,27 +52,9 @@ public class MainActivity extends AppCompatActivity implements
             checkLocationPermission();
         }
 
-        cityResultReceiver = new CityResultReceiver(new Handler());
-
         // Start the service.
-        System.out.println("Starting the service.");
         ComponentName comp = new ComponentName(this.getPackageName(), BackgroundLocationService.class.getName());
         ComponentName service = this.startService(new Intent().setComponent(comp));
-    }
-
-    @SuppressLint("ParcelCreator")
-    class CityResultReceiver extends ResultReceiver {
-        public CityResultReceiver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        protected void onReceiveResult(int resultCode, Bundle resultData) {
-            if (resultCode == FetchCityIntentService.Constants.SUCCESS_RESULT) {
-                String city = resultData.getString(FetchCityIntentService.Constants.RESULT_DATA_KEY);
-                System.out.println("In main activity, city: " + city);
-            }
-        }
     }
 
     protected void onStart() {
@@ -95,20 +64,7 @@ public class MainActivity extends AppCompatActivity implements
 
     protected void onStop() {
         googleApiClient.disconnect();
-        // TODO: Stop requesting updates
         super.onStop();
-    }
-
-    private void getLocation() {
-        System.out.println("About to get location");
-        //noinspection MissingPermission
-        lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        if (lastLocation != null) {
-            System.out.println("Got location");
-            System.out.println(lastLocation);
-        } else {
-            System.out.println("Last location is null");
-        }
     }
 
     // == Location permissions
@@ -125,7 +81,6 @@ public class MainActivity extends AppCompatActivity implements
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         // If the user accepted the location permission, request the location.
         if (requestCode == REQUEST_LOCATION_PERMISSION_REQUEST_CODE) {
-            System.out.println("On request permission result");
             if (PermissionHelper.hasPermission(this)) {
                 onHaveLocationPermission();
             }
@@ -135,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements
     // == Location settings
     private void checkLocationSettings() {
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(locationRequest);
+                .addLocationRequest(LocationSettingHelper.getLocationRequest());
         PendingResult<LocationSettingsResult> result =
                 LocationServices.SettingsApi.checkLocationSettings(googleApiClient,
                         builder.build());
@@ -144,11 +99,6 @@ public class MainActivity extends AppCompatActivity implements
             public void onResult(LocationSettingsResult result) {
                 final Status status = result.getStatus();
                 switch (status.getStatusCode()) {
-                    case LocationSettingsStatusCodes.SUCCESS:
-                        // No problems with the settings.
-                        System.out.println("Success");
-                        onAllowedToGetLocation();
-                        break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                         // Show a dialog to request the user changes the settings.
                         try {
@@ -165,32 +115,13 @@ public class MainActivity extends AppCompatActivity implements
         });
     }
 
-    public void onActivityResult (int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CHECK_SETTINGS_CODE) {
-            System.out.println("On check settings result");
-            if (resultCode == RESULT_OK) {
-                System.out.println("Settings are all ok");
-                onAllowedToGetLocation();
-            } else {
-                System.out.println("Settings are not ok");
-            }
-        }
-    }
-
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        System.out.println("Connected to Google Play Services.");
-
         checkLocationPermission();
     }
 
     public void onHaveLocationPermission() {
-        System.out.println("Have location permission");
         checkLocationSettings();
-    }
-
-    public void onAllowedToGetLocation() {
-        // TODO: Call the BackgroundLocationService.
     }
 
     @Override

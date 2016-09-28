@@ -32,11 +32,8 @@ public class BackgroundLocationReceiver extends BroadcastReceiver {
         if (LocationResult.hasResult(intent)) {
             LocationResult locationResult = LocationResult.extractResult(intent);
             Location location = locationResult.getLastLocation();
-            System.out.println("Location changed");
-            System.out.println(location);
 
             if (location == null) {
-                System.out.println("Location null");
                 return;
             }
             if (Geocoder.isPresent()) {
@@ -45,9 +42,6 @@ public class BackgroundLocationReceiver extends BroadcastReceiver {
                 getCityIntent.putExtra(FetchCityIntentService.Constants.RECEIVER, cityResultReceiver);
                 getCityIntent.putExtra(FetchCityIntentService.Constants.LOCATION_DATA_EXTRA, location);
                 context.startService(getCityIntent);
-                System.out.println("Starting fetch city job.");
-            } else {
-                System.out.println("Geocoder not present.");
             }
         }
     }

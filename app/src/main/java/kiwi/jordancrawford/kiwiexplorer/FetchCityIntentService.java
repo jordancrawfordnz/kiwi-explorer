@@ -42,7 +42,6 @@ public class FetchCityIntentService extends IntentService {
 
         List<Address> addresses = null;
 
-        System.out.println("On handle intent fetch city");
         try {
             // Get one address from the provided location.
             addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
@@ -53,7 +52,6 @@ public class FetchCityIntentService extends IntentService {
         if (addresses != null && addresses.size() > 0) {
             // An address was found.
             String city = addresses.get(0).getLocality();
-            System.out.println("City: " + city);
             deliverResultToReceiver(Constants.SUCCESS_RESULT, city);
         } else {
             deliverResultToReceiver(Constants.FAILURE_RESULT, null);
