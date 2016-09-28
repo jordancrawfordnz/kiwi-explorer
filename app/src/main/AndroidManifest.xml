@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="kiwi.jordancrawford.kiwiexplorer">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -16,29 +18,50 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".ServiceStartReceiver"
+        <receiver
+            android:name=".ServiceStartReceiver"
             android:enabled="true"
             android:exported="false"
             android:label="ServiceStartReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.location.PROVIDERS_CHANGED" />
             </intent-filter>
         </receiver>
-
         <receiver android:name=".BackgroundLocationReceiver" />
 
-        <service android:name=".BackgroundLocationService"
+        <service
+            android:name=".BackgroundLocationService"
             android:enabled="true"
-            android:exported="true"></service>
-
+            android:exported="true" />
         <service
             android:name=".FetchCityIntentService"
-            android:exported="false"/>
-    </application>
+            android:exported="false" />
+        <!--
+             The API key for Google Maps-based APIs is defined as a string resource.
+             (See the file "res/values/google_maps_api.xml").
+             Note that the API key is linked to the encryption key used to sign the APK.
+             You need a different API key for each encryption key, including the release key that is used to
+             sign the APK for publishing.
+             You can define the keys for the debug and release targets in src/debug/ and src/release/. 
+        -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+        <activity
+            android:name=".CityViewActivity"
+            android:label="@string/title_activity_city_view">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="kiwi.jordancrawford.kiwiexplorer.MainActivity" />
+        </activity><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
+     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+    </application>
 
 </manifest>
