@@ -1,0 +1,98 @@
+[
+  {
+    "name" : "Auckland",
+    "lat" : -36.840556,
+    "long" : 174.74,
+    "picture": "auckland"
+  },
+  {
+    "name" : "Wellington",
+    "lat" : -41.288889,
+    "long" : 174.777222,
+    "picture" : "wellington"
+  },
+  {
+    "name" : "Christchurch",
+    "lat" : -43.53,
+    "long" : 172.620278,
+    "pictute" : "christchurch"
+  },
+  {
+    "name" : "Hamilton",
+    "lat" : -37.7882,
+    "long" : 175.280836,
+    "picture" : "hamilton"
+  },
+  {
+    "name" : "Tauranga",
+    "lat" : -37.683333,
+    "long" : 176.166667,
+    "picture" : "tauranga"
+  },
+  {
+    "name" : "Napier",
+    "lat" : -39.483333,
+    "long" : 176.916667,
+    "picture" : "napier"
+  },
+  {
+    "name" : "Hastings",
+    "lat" : -39.65,
+    "long" : 176.833333,
+    "picture" : "hastings"
+  },
+  {
+    "name" : "Dunedin",
+    "lat" : -45.866667,
+    "long" : 170.5,
+    "picture" : "dunedin"
+  },
+  {
+    "name" : "Palmerston North",
+    "lat" : -40.355,
+    "long" : 175.611667,
+    "picture" : "palmerstonnorth"
+  },
+  {
+    "name": "Nelson",
+    "lat" : -41.270833,
+    "long" : 173.283889,
+    "picture" : "nelson"
+  },
+  {
+    "name" : "Rotorua",
+    "lat" : -38.137778,
+    "long" : 176.251389,
+    "picture" : "rotorua"
+  },
+  {
+    "name" : "New Plymouth",
+    "lat" : -39.066667,
+    "long" : 174.083333,
+    "picture" : "newplymouth"
+  },
+  {
+    "name" : "Whangarei",
+    "lat" : -35.725,
+    "long" : 174.323611,
+    "picture" : "whangarei"
+  },
+  {
+    "name" : "Invercargill",
+    "lat" : -46.413056,
+    "long" : 168.3475,
+    "picture" : "invercargill"
+  },
+  {
+    "name" : "Whanganui",
+    "lat" : -39.933333,
+    "long" : 175.05,
+    "picture" : "whanganui"
+  },
+  {
+    "name" : "Gisborne",
+    "lat" : -38.6625,
+    "long" : 178.017778,
+    "picture" : "gisborne"
+  }
+]
