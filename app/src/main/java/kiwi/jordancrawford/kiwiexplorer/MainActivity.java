@@ -16,8 +16,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -33,6 +36,10 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
+import org.json.JSONException;
+
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -40,6 +47,9 @@ public class MainActivity extends AppCompatActivity implements
     private static final int REQUEST_LOCATION_PERMISSION_REQUEST_CODE = 1;
     private static final int REQUEST_CHECK_SETTINGS_CODE = 2;
     private GoogleApiClient googleApiClient;
+    private RecyclerView cityRecyclerView;
+    private RecyclerView.LayoutManager cityRecyclerViewLayoutManager;
+    private RecyclerView.Adapter cityRecyclerViewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +70,21 @@ public class MainActivity extends AppCompatActivity implements
         // Start the service.
         ComponentName comp = new ComponentName(this.getPackageName(), BackgroundLocationService.class.getName());
         ComponentName service = this.startService(new Intent().setComponent(comp));
+
+        // Setup the city recycler view.
+        cityRecyclerView = (RecyclerView) findViewById(R.id.city_recycler_view);
+        cityRecyclerViewLayoutManager = new GridLayoutManager(this, 2);
+        cityRecyclerView.setLayoutManager(cityRecyclerViewLayoutManager);
+
+        // Setup the list adapter.
+        try {
+            cityRecyclerViewAdapter = new CityListAdapter(this, Cities.getCities(this));
+            cityRecyclerView.setAdapter(cityRecyclerViewAdapter);
+        } catch (IOException ioException) {
+            Toast.makeText(this, R.string.error_get_cities_io_exception, Toast.LENGTH_LONG).show();
+        } catch (JSONException jsonException) {
+            Toast.makeText(this, R.string.error_get_cities_json_exception, Toast.LENGTH_LONG).show();
+        }
     }
 
     public void launchMapsView(View view) {
@@ -82,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements
     private void checkLocationPermission() {
         if (PermissionHelper.hasPermission(this)) {
             onHaveLocationPermission();
-        } else { // If don't have the reequired permission, request it.
+        } else { // If don't have the required permission, request it.
             ActivityCompat.requestPermissions(this, new String[]{
                     PermissionHelper.REQUIRED_PERMISSION
             }, REQUEST_LOCATION_PERMISSION_REQUEST_CODE);
@@ -144,8 +169,10 @@ public class MainActivity extends AppCompatActivity implements
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         googleApiClient = null;
         if (connectionResult.hasResolution()) {
-            // TODO: Display an appropriate result to the user.
+            // TODO: Allow the user to resolve the issue.
+        } else {
+            Toast.makeText(this, R.string.error_google_play_services_no_resolution, Toast.LENGTH_LONG).show();
+            // TODO: Unset the user's current location.
         }
-        System.out.println("Could not connect to Google Play Services.");
     }
 }
