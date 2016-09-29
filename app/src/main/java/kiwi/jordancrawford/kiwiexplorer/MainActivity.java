@@ -2,10 +2,14 @@ package kiwi.jordancrawford.kiwiexplorer;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
@@ -14,6 +18,7 @@ import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -51,6 +56,14 @@ public class MainActivity extends AppCompatActivity implements
     private RecyclerView.LayoutManager cityRecyclerViewLayoutManager;
     private RecyclerView.Adapter cityRecyclerViewAdapter;
 
+    private BroadcastReceiver cityClickedMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            System.out.println("Activity received click");
+            // TODO: Handle city clicked.
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +86,9 @@ public class MainActivity extends AppCompatActivity implements
 
         // Setup the city recycler view.
         cityRecyclerView = (RecyclerView) findViewById(R.id.city_recycler_view);
-        cityRecyclerViewLayoutManager = new GridLayoutManager(this, 2);
+        int deviceOrientation = getResources().getConfiguration().orientation;
+        int numberOfColumns = deviceOrientation == Configuration.ORIENTATION_LANDSCAPE ? 2 : 1;
+        cityRecyclerViewLayoutManager = new GridLayoutManager(this, numberOfColumns);
         cityRecyclerView.setLayoutManager(cityRecyclerViewLayoutManager);
 
         // Setup the list adapter.
@@ -85,6 +100,14 @@ public class MainActivity extends AppCompatActivity implements
         } catch (JSONException jsonException) {
             Toast.makeText(this, R.string.error_get_cities_json_exception, Toast.LENGTH_LONG).show();
         }
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(cityClickedMessageReceiver, new IntentFilter(CityListAdapter.CITY_CLICK_KEY));
+    }
+
+    @Override
+    protected void onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(cityClickedMessageReceiver);
+        super.onDestroy();
     }
 
     public void launchMapsView(View view) {

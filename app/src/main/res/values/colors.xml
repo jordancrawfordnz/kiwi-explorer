@@ -3,4 +3,6 @@
     <color name="colorPrimary">#009688</color>
     <color name="colorPrimaryDark">#00796B</color>
     <color name="colorAccent">#8BC34A</color>
+    <color name="city_list_background_color">#8c000000</color>
+    <color name="city_list_text_color">#ffffff</color>
 </resources>

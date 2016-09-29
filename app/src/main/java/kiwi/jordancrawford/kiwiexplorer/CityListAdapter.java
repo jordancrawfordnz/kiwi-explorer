@@ -1,10 +1,13 @@
 package kiwi.jordancrawford.kiwiexplorer;
 
 import android.content.Context;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -14,6 +17,9 @@ import java.util.ArrayList;
  * Created by Jordan on 29/09/16.
  */
 public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityViewHolder> {
+    public static final String CITY_CLICK_KEY = "city_click";
+    public static final String CITY_EXTRA = "city_extra";
+
     private ArrayList<City> cities;
     private Context context;
 
@@ -25,22 +31,25 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityVi
     public class CityViewHolder extends RecyclerView.ViewHolder {
         private View view;
         private TextView cityName;
-        private RelativeLayout cityContainer;
+        private ImageView cityPicture;
 
         public CityViewHolder(View view) {
             super(view);
+            this.view = view;
             this.cityName = (TextView) view.findViewById(R.id.city_list_view_name);
-            this.cityContainer = (RelativeLayout) view.findViewById(R.id.city_list_view_container);
+            this.cityPicture = (ImageView)view.findViewById(R.id.city_list_view_image);
         }
 
         public void setupView(final City city) {
             cityName.setText(city.getName());
-            cityContainer.setBackgroundResource(context.getResources().getIdentifier(city.getPictureResourceName(), "drawable", context.getPackageName()));
+            cityPicture.setImageResource(context.getResources().getIdentifier(city.getPictureResourceName(), "drawable", context.getPackageName()));
 
-            cityContainer.setOnClickListener(new View.OnClickListener() {
+            view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    System.out.println(city);
+                    Intent intent = new Intent(CITY_CLICK_KEY);
+                    intent.putExtra(CITY_EXTRA, city);
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                 }
             });
         }

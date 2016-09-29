@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/city_list_view_height"
     android:padding="@dimen/list_city_view_padding">
 
-    <RelativeLayout
-        android:id="@+id/city_list_view_container"
+    <ImageView
+        android:id="@+id/city_list_view_image"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/city_list_view_height">
+        android:layout_height="@dimen/city_list_view_height"
+        android:scaleType="centerCrop">
+    </ImageView>
 
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/city_list_background_color"
+        android:padding="@dimen/city_list_content_padding">
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/city_list_view_name"
+            android:textSize="@dimen/city_list_name_text_size"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
+            android:layout_height="wrap_content"
+            android:textColor="@color/city_list_text_color"/>
     </RelativeLayout>
 
-</LinearLayout>
+</RelativeLayout>
