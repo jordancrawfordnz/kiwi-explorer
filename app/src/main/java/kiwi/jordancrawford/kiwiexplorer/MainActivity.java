@@ -154,6 +154,18 @@ public class MainActivity extends AppCompatActivity implements
             cities.addAll(Cities.getCities(this));
             Cities.fillInCityData(this); // Fill in the city data from the database.
             cityRecyclerViewAdapter.notifyDataSetChanged();
+
+            // Fill in the number of cities seen as a subtitle.
+            ArrayList<City> citiesSeen = new ArrayList<>();
+            for (City city : cities) {
+                if (city.getCityData() != null && city.getCityData().isCitySeen()) {
+                    citiesSeen.add(city);
+                }
+            }
+            String format = getResources().getString(R.string.cities_seen_format);
+            String citiesSeenText = String.format(format, citiesSeen.size(), cities.size());
+            getSupportActionBar().setSubtitle(citiesSeenText);
+
         } catch (IOException ioException) {
             Toast.makeText(this, R.string.error_get_cities_io_exception, Toast.LENGTH_LONG).show();
         } catch (JSONException jsonException) {

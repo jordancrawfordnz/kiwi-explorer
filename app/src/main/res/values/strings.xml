@@ -5,4 +5,5 @@
     <string name="error_get_cities_json_exception">Could not parse cities from file.</string>
     <string name="error_google_play_services_no_resolution">Could not connect to Google Play services. Location will not be automatically updated.</string>
     <string name="current_location_text">Current Location</string>
+    <string name="cities_seen_format">%1$d/%2$d cities seen</string>
 </resources>

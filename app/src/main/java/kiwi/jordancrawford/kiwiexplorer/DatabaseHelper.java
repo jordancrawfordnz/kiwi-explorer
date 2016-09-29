@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.wifi.WifiEnterpriseConfig;
 import android.support.v4.content.LocalBroadcastManager;
+import android.view.Menu;
+import android.view.MenuInflater;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -147,7 +149,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             toReturn.setId(id);
 
             Intent intent = new Intent(DATABASE_UPDATE_KEY);
-            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);   
+            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         }
 
         return toReturn;
