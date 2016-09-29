@@ -117,6 +117,13 @@ public class MainActivity extends AppCompatActivity implements
 
     protected void onStart() {
         googleApiClient.connect();
+        try {
+            Cities.fillInCityData(this); // Fill in the city data from the database.
+        } catch (IOException ioException) {
+            Toast.makeText(this, R.string.error_get_cities_io_exception, Toast.LENGTH_LONG).show();
+        } catch (JSONException jsonException) {
+            Toast.makeText(this, R.string.error_get_cities_json_exception, Toast.LENGTH_LONG).show();
+        }
         super.onStart();
     }
 

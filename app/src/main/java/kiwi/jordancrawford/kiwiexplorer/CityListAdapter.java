@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 /**
@@ -30,19 +32,29 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityVi
 
     public class CityViewHolder extends RecyclerView.ViewHolder {
         private View view;
-        private TextView cityName;
+        private TextView cityName, currentLocationText;
         private ImageView cityPicture;
 
         public CityViewHolder(View view) {
             super(view);
             this.view = view;
             this.cityName = (TextView) view.findViewById(R.id.city_list_view_name);
+            this.currentLocationText = (TextView) view.findViewById(R.id.city_list_current_location);
             this.cityPicture = (ImageView)view.findViewById(R.id.city_list_view_image);
         }
 
         public void setupView(final City city) {
             cityName.setText(city.getName());
             cityPicture.setImageResource(context.getResources().getIdentifier(city.getPictureResourceName(), "drawable", context.getPackageName()));
+
+            // Fill in the current location text if appropriate.
+            if (city.getCityData() != null && city.getCityData().isCurrentLocation()) {
+                System.out.println("Is current location");
+                System.out.println(city);
+                currentLocationText.setText(R.string.current_location_text);
+            } else {
+                currentLocationText.setText("");
+            }
 
             view.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -27,6 +27,14 @@
             android:layout_marginTop="@dimen/city_list_name_margin_top"
             android:textColor="@color/city_list_text_color"/>
 
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/city_list_current_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/city_list_view_name"
+            android:textColor="@color/city_list_text_color"/>
+
     </RelativeLayout>
 
 </RelativeLayout>

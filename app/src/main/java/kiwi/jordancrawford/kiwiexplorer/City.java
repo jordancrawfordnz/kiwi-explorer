@@ -9,6 +9,7 @@ import android.os.Parcelable;
 public class City implements Parcelable {
     private String name, pictureResourceName;
     private double latitude, longitude;
+    private CityData cityData;
 
     public String getName() {
         return name;
@@ -40,6 +41,14 @@ public class City implements Parcelable {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public CityData getCityData() {
+        return cityData;
+    }
+
+    public void setCityData(CityData cityData) {
+        this.cityData = cityData;
     }
 
     @Override

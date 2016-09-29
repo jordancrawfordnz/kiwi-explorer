@@ -14,6 +14,7 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Created by Jordan on 29/09/16.
@@ -63,6 +64,21 @@ public class Cities {
             cities = setupData(context.getApplicationContext().getResources().openRawResource(R.raw.cities));
         }
         return cities;
+    }
+
+    public static void fillInCityData(Context context) throws IOException, JSONException {
+        ArrayList<City> cities = getCities(context);
+
+        // Get a map of city names and CityData from the database.
+        Map<String, CityData> allCityData = DatabaseHelper.getInstance(context).getAllCityData();
+
+        for (City city : cities) {
+            if (allCityData.containsKey(city.getName())) {
+                city.setCityData(allCityData.get(city.getName()));
+            } else {
+                city.setCityData(null);
+            }
+        }
     }
 
 }
