@@ -17,6 +17,10 @@ import com.google.android.gms.location.LocationResult;
  * Created by Jordan on 28/09/16.
  */
 public class BackgroundLocationReceiver extends BroadcastReceiver {
+    private static Location lastLocation = null; // Cache the last location to avoid excessive requests to Google.
+    private static boolean lastLocationRetreiveSuccess; // Whether the last location was retreived successfully.
+    private static final int MINIMUM_DISTANCE_FOR_REVERSE_LOOKUP = 1000; // The minimum
+
     private CityResultReceiver cityResultReceiver;
 
     public BackgroundLocationReceiver() {
@@ -36,13 +40,20 @@ public class BackgroundLocationReceiver extends BroadcastReceiver {
             if (location == null) {
                 return;
             }
-            if (Geocoder.isPresent()) {
-                // Get the city.
-                Intent getCityIntent = new Intent(context, FetchCityIntentService.class);
-                getCityIntent.putExtra(FetchCityIntentService.Constants.RECEIVER, cityResultReceiver);
-                getCityIntent.putExtra(FetchCityIntentService.Constants.LOCATION_DATA_EXTRA, location);
-                context.startService(getCityIntent);
+
+            // If the last location is not defined, couldn't retreive the reverse address successfully, or the distance between the points is greater than the minimum, then do a reverse lookup.
+            if (lastLocation == null || !lastLocationRetreiveSuccess || lastLocation.distanceTo(location) > MINIMUM_DISTANCE_FOR_REVERSE_LOOKUP) {
+                if (Geocoder.isPresent()) {
+                    // Get the city.
+                    Intent getCityIntent = new Intent(context, FetchCityIntentService.class);
+                    getCityIntent.putExtra(FetchCityIntentService.Constants.RECEIVER, cityResultReceiver);
+                    getCityIntent.putExtra(FetchCityIntentService.Constants.LOCATION_DATA_EXTRA, location);
+                    context.startService(getCityIntent);
+                } else {
+                    lastLocationRetreiveSuccess = false;
+                }
             }
+            lastLocation = location;
         }
     }
 
@@ -57,6 +68,9 @@ public class BackgroundLocationReceiver extends BroadcastReceiver {
             if (resultCode == FetchCityIntentService.Constants.SUCCESS_RESULT) {
                 String city = resultData.getString(FetchCityIntentService.Constants.RESULT_DATA_KEY);
                 System.out.println("In background service, city: " + city);
+                lastLocationRetreiveSuccess = true;
+            } else {
+                lastLocationRetreiveSuccess = false;
             }
         }
     }
