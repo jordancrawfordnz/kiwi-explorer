@@ -76,21 +76,27 @@ public class BackgroundLocationReceiver extends BroadcastReceiver {
                 System.out.println("In background service, city: " + city);
 
                 lastLocationRetreiveSuccess = true;
+
                 if (context != null) {
-                    CityData cityData = DatabaseHelper.getInstance(context).getCityDataByCityName(city);
-                    cityData.setCitySeen(true);
-                    cityData.setCurrentLocation(true);
+                    CityData cityData = null;
+                    if (city != null) {
+                        cityData = DatabaseHelper.getInstance(context).getCityDataByCityName(city);
+                        cityData.setCitySeen(true);
+                        cityData.setCurrentLocation(true);
+                    }
 
                     // Get the last current location.
                     CityData currentCityData = DatabaseHelper.getInstance(context).getCurrentCity();
                     // If the current city is defined and is different to the new current city.
-                    if (currentCityData != null && !cityData.getCityName().equals(currentCityData.getCityName())) {
+                    if (currentCityData != null && (cityData != null && !cityData.getCityName().equals(currentCityData.getCityName()))) {
                         currentCityData.setCurrentLocation(false);
                         DatabaseHelper.getInstance(context).updateCityData(currentCityData);
                     }
 
-                    // Update the new current city.
-                    DatabaseHelper.getInstance(context).updateCityData(cityData);
+                    if (cityData != null) {
+                        // Update the new current city.
+                        DatabaseHelper.getInstance(context).updateCityData(cityData);
+                    }
 
                     // TODO: Need to send an intent to let the activity know?
                 }

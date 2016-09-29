@@ -30,6 +30,7 @@ import android.widget.Toast;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.BatchResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -44,6 +45,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
@@ -55,6 +57,15 @@ public class MainActivity extends AppCompatActivity implements
     private RecyclerView cityRecyclerView;
     private RecyclerView.LayoutManager cityRecyclerViewLayoutManager;
     private RecyclerView.Adapter cityRecyclerViewAdapter;
+    private ArrayList<City> cities = new ArrayList<City>();
+
+    private BroadcastReceiver databaseUpdateMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Refresh the database.
+            loadCities();
+        }
+    };
 
     private BroadcastReceiver cityClickedMessageReceiver = new BroadcastReceiver() {
         @Override
@@ -66,6 +77,21 @@ public class MainActivity extends AppCompatActivity implements
             Intent startMapIntent = new Intent(MainActivity.this, CityViewActivity.class);
             startMapIntent.putExtra(CityViewActivity.CITY_EXTRA, city);
             startActivity(startMapIntent);
+        }
+    };
+
+    private BroadcastReceiver citySeenClickedMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get the city from the intent.
+            City city = intent.getParcelableExtra(CityListAdapter.CITY_EXTRA);
+
+            // Toggle whether the city is seen.
+            CityData cityData = DatabaseHelper.getInstance(MainActivity.this).getCityDataByCityName(city.getName());
+            cityData.setCitySeen(!cityData.isCitySeen());
+            DatabaseHelper.getInstance(MainActivity.this).updateCityData(cityData);
+
+                // TODO: Have the update refresh the list.
         }
     };
 
@@ -97,39 +123,42 @@ public class MainActivity extends AppCompatActivity implements
         cityRecyclerView.setLayoutManager(cityRecyclerViewLayoutManager);
 
         // Setup the list adapter.
-        try {
-            cityRecyclerViewAdapter = new CityListAdapter(this, Cities.getCities(this));
-            cityRecyclerView.setAdapter(cityRecyclerViewAdapter);
-        } catch (IOException ioException) {
-            Toast.makeText(this, R.string.error_get_cities_io_exception, Toast.LENGTH_LONG).show();
-        } catch (JSONException jsonException) {
-            Toast.makeText(this, R.string.error_get_cities_json_exception, Toast.LENGTH_LONG).show();
-        }
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(cityClickedMessageReceiver, new IntentFilter(CityListAdapter.CITY_CLICK_KEY));
-    }
-
-    @Override
-    protected void onDestroy() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(cityClickedMessageReceiver);
-        super.onDestroy();
+        cityRecyclerViewAdapter = new CityListAdapter(this, cities);
+        cityRecyclerView.setAdapter(cityRecyclerViewAdapter);
     }
 
     protected void onStart() {
         googleApiClient.connect();
-        try {
-            Cities.fillInCityData(this); // Fill in the city data from the database.
-        } catch (IOException ioException) {
-            Toast.makeText(this, R.string.error_get_cities_io_exception, Toast.LENGTH_LONG).show();
-        } catch (JSONException jsonException) {
-            Toast.makeText(this, R.string.error_get_cities_json_exception, Toast.LENGTH_LONG).show();
-        }
+        loadCities();
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(cityClickedMessageReceiver, new IntentFilter(CityListAdapter.CITY_CLICK_KEY));
+        LocalBroadcastManager.getInstance(this).registerReceiver(citySeenClickedMessageReceiver, new IntentFilter(CityListAdapter.CITY_SEEN_CLICK_KEY));
+        LocalBroadcastManager.getInstance(this).registerReceiver(databaseUpdateMessageReceiver, new IntentFilter(DatabaseHelper.DATABASE_UPDATE_KEY));
+
         super.onStart();
     }
 
     protected void onStop() {
         googleApiClient.disconnect();
+
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(cityClickedMessageReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(citySeenClickedMessageReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(databaseUpdateMessageReceiver);
+
         super.onStop();
+    }
+
+    private void loadCities() {
+        try {
+            cities.clear();
+            cities.addAll(Cities.getCities(this));
+            Cities.fillInCityData(this); // Fill in the city data from the database.
+            cityRecyclerViewAdapter.notifyDataSetChanged();
+        } catch (IOException ioException) {
+            Toast.makeText(this, R.string.error_get_cities_io_exception, Toast.LENGTH_LONG).show();
+        } catch (JSONException jsonException) {
+            Toast.makeText(this, R.string.error_get_cities_json_exception, Toast.LENGTH_LONG).show();
+        }
     }
 
     // == Location permissions

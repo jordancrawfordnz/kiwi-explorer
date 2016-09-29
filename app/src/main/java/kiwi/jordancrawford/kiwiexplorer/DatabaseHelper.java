@@ -2,10 +2,12 @@ package kiwi.jordancrawford.kiwiexplorer;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.wifi.WifiEnterpriseConfig;
+import android.support.v4.content.LocalBroadcastManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,8 @@ import static kiwi.jordancrawford.kiwiexplorer.DatabaseContract.CityDataEntry;
  * Created by Jordan on 29/09/16.
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
+    public static final String DATABASE_UPDATE_KEY = "database_update";
+
     private static final String NO_ID_EXCEPTION_MESSAGE = "No ID on record. Is it saved?";
     private static final String ID_PROPERTIES = "INTEGER PRIMARY KEY AUTOINCREMENT";
     private static final String SQL_CREATE_TABLE_CITY_DATA =
@@ -26,6 +30,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + CityDataEntry.IS_CURRENT_LOCATION + " " + CityDataEntry.IS_CURRENT_LOCATION_TYPE +  ")";
     private static final String SQL_DROP_TABLE_CITY_DATA =
             "DROP TABLE IF EXISTS " + CityDataEntry.TABLE_NAME;
+
+    private Context context;
 
     private String[] projection = {
             CityDataEntry._ID,
@@ -53,6 +59,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     // Gets the field required to add / update a CityData.
@@ -85,6 +92,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @return Null or a CityData object.
      */
     private CityData getRawCityDataByCityName(String cityName) {
+        if (cityName == null) {
+            return null;
+        }
         Cursor queryResult = getReadableDatabase().query(
                 CityDataEntry.TABLE_NAME,
                 projection,
@@ -135,6 +145,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     getCityDataFields(toReturn)
             );
             toReturn.setId(id);
+
+            Intent intent = new Intent(DATABASE_UPDATE_KEY);
+            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);   
         }
 
         return toReturn;
@@ -205,6 +218,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 getCityDataFields(toUpdate),
                 CityDataEntry._ID + " = ?",
                 new String[] { String.valueOf(toUpdate.getId()) });
+
+        Intent intent = new Intent(DATABASE_UPDATE_KEY);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+
         return updateResult == 1;
     }
 }

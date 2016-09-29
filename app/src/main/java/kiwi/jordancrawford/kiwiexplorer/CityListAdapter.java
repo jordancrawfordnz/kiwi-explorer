@@ -20,6 +20,7 @@ import java.util.ArrayList;
  */
 public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityViewHolder> {
     public static final String CITY_CLICK_KEY = "city_click";
+    public static final String CITY_SEEN_CLICK_KEY = "city_seen_click";
     public static final String CITY_EXTRA = "city_extra";
 
     private ArrayList<City> cities;
@@ -33,7 +34,7 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityVi
     public class CityViewHolder extends RecyclerView.ViewHolder {
         private View view;
         private TextView cityName, currentLocationText;
-        private ImageView cityPicture;
+        private ImageView cityPicture, citySeenIcon;
 
         public CityViewHolder(View view) {
             super(view);
@@ -41,6 +42,7 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityVi
             this.cityName = (TextView) view.findViewById(R.id.city_list_view_name);
             this.currentLocationText = (TextView) view.findViewById(R.id.city_list_current_location);
             this.cityPicture = (ImageView)view.findViewById(R.id.city_list_view_image);
+            this.citySeenIcon = (ImageView)view.findViewById(R.id.city_list_have_seen);
         }
 
         public void setupView(final City city) {
@@ -49,12 +51,24 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityVi
 
             // Fill in the current location text if appropriate.
             if (city.getCityData() != null && city.getCityData().isCurrentLocation()) {
-                System.out.println("Is current location");
-                System.out.println(city);
                 currentLocationText.setText(R.string.current_location_text);
             } else {
                 currentLocationText.setText("");
             }
+
+            if (city.getCityData() != null && city.getCityData().isCitySeen()) {
+                citySeenIcon.setImageResource(R.drawable.ic_checkbox_marked_circle_white_48dp);
+            } else {
+                citySeenIcon.setImageResource(R.drawable.ic_checkbox_blank_circle_outline_white_48dp);
+            }
+            citySeenIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(CITY_SEEN_CLICK_KEY);
+                    intent.putExtra(CITY_EXTRA, city);
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                }
+            });
 
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
