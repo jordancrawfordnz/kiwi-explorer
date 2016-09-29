@@ -17,12 +17,16 @@
         android:layout_height="match_parent"
         android:background="@color/city_list_background_color"
         android:padding="@dimen/city_list_content_padding">
+
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/city_list_view_name"
             android:textSize="@dimen/city_list_name_text_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/city_list_name_margin_top"
             android:textColor="@color/city_list_text_color"/>
+
     </RelativeLayout>
 
 </RelativeLayout>

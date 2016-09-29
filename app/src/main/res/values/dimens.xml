@@ -6,4 +6,5 @@
     <dimen name="list_city_view_padding">4dp</dimen>
     <dimen name="city_list_content_padding">8dp</dimen>
     <dimen name="city_list_name_text_size">40dp</dimen>
+    <dimen name="city_list_name_margin_top">8dp</dimen>
 </resources>

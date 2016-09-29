@@ -59,8 +59,13 @@ public class MainActivity extends AppCompatActivity implements
     private BroadcastReceiver cityClickedMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            System.out.println("Activity received click");
-            // TODO: Handle city clicked.
+            // Get the city from the intent.
+            City city = intent.getParcelableExtra(CityListAdapter.CITY_EXTRA);
+
+            // Start the map view.
+            Intent startMapIntent = new Intent(MainActivity.this, CityViewActivity.class);
+            startMapIntent.putExtra(CityViewActivity.CITY_EXTRA, city);
+            startActivity(startMapIntent);
         }
     };
 
@@ -108,12 +113,6 @@ public class MainActivity extends AppCompatActivity implements
     protected void onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(cityClickedMessageReceiver);
         super.onDestroy();
-    }
-
-    public void launchMapsView(View view) {
-        Intent intent = new Intent(this, CityViewActivity.class);
-        startActivity(intent);
-
     }
 
     protected void onStart() {

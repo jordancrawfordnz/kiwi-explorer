@@ -1,8 +1,11 @@
 package kiwi.jordancrawford.kiwiexplorer;
 
-import android.support.v4.app.FragmentActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -10,9 +13,12 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class CityViewActivity extends FragmentActivity implements OnMapReadyCallback {
+public class CityViewActivity extends AppCompatActivity implements OnMapReadyCallback {
+    public static final String CITY_EXTRA = "city_extra";
 
     private GoogleMap map;
+    private City city;
+    private ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,8 +28,14 @@ public class CityViewActivity extends FragmentActivity implements OnMapReadyCall
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-    }
 
+        // Get the city from the intent.
+        Intent launchIntent = getIntent();
+        city = launchIntent.getParcelableExtra(CITY_EXTRA);
+
+        actionBar = getSupportActionBar();
+        actionBar.setTitle(city.getName());
+    }
 
     /**
      * Manipulates the map once available.
@@ -38,10 +50,13 @@ public class CityViewActivity extends FragmentActivity implements OnMapReadyCall
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng auckland = new LatLng(-36.84, 174.74);
+        // Add a marker to show where the city is.
+        LatLng cityPosition = new LatLng(city.getLatitude(), city.getLongitude());
 
-        map.addMarker(new MarkerOptions().position(auckland));
-        map.moveCamera(CameraUpdateFactory.newLatLng(auckland));
+        map.addMarker(new MarkerOptions().position(cityPosition));
+        map.moveCamera(CameraUpdateFactory.newLatLng(cityPosition));
+
+        CameraUpdate zoom = CameraUpdateFactory.newLatLngZoom(cityPosition, 5);
+        googleMap.moveCamera(zoom);
     }
 }
