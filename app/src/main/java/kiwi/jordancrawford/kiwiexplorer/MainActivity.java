@@ -1,22 +1,15 @@
 package kiwi.jordancrawford.kiwiexplorer;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.location.Geocoder;
-import android.location.Location;
-import android.net.Uri;
-import android.os.Handler;
-import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -27,16 +20,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.BatchResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
@@ -53,11 +42,14 @@ public class MainActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback {
     private static final int REQUEST_LOCATION_PERMISSION_REQUEST_CODE = 1;
     private static final int REQUEST_CHECK_SETTINGS_CODE = 2;
+    private static final int SNACKBAR_PERMISSION_TIMEOUT = 10000;
+
     private GoogleApiClient googleApiClient;
     private RecyclerView cityRecyclerView;
     private RecyclerView.LayoutManager cityRecyclerViewLayoutManager;
     private RecyclerView.Adapter cityRecyclerViewAdapter;
     private ArrayList<City> cities = new ArrayList<City>();
+    private View containerView;
 
     private BroadcastReceiver databaseUpdateMessageReceiver = new BroadcastReceiver() {
         @Override
@@ -90,8 +82,6 @@ public class MainActivity extends AppCompatActivity implements
             CityData cityData = DatabaseHelper.getInstance(MainActivity.this).getCityDataByCityName(city.getName());
             cityData.setCitySeen(!cityData.isCitySeen());
             DatabaseHelper.getInstance(MainActivity.this).updateCityData(cityData);
-
-                // TODO: Have the update refresh the list.
         }
     };
 
@@ -110,6 +100,8 @@ public class MainActivity extends AppCompatActivity implements
         } else {
             checkLocationPermission();
         }
+
+        containerView = findViewById(R.id.main_activity_container);
 
         // Start the service.
         ComponentName comp = new ComponentName(this.getPackageName(), BackgroundLocationService.class.getName());
@@ -177,11 +169,30 @@ public class MainActivity extends AppCompatActivity implements
     private void checkLocationPermission() {
         if (PermissionHelper.hasPermission(this)) {
             onHaveLocationPermission();
-        } else { // If don't have the required permission, request it.
-            ActivityCompat.requestPermissions(this, new String[]{
-                    PermissionHelper.REQUIRED_PERMISSION
-            }, REQUEST_LOCATION_PERMISSION_REQUEST_CODE);
+        } else { // If don't have the required permission.
+            // See if we should request it.
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, PermissionHelper.REQUIRED_PERMISSION)) {
+                // Show the rationale.
+                Snackbar snackbar = Snackbar
+                        .make(containerView, R.string.permission_snackbar_explainer, SNACKBAR_PERMISSION_TIMEOUT)
+                        .setAction(R.string.permission_snackbar_action, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                requestLocationPermission();
+                            }
+                        });
+                snackbar.show();
+            } else {
+                // Request it. No need to explain.
+                requestLocationPermission();
+            }
         }
+    }
+
+    private void requestLocationPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{
+                PermissionHelper.REQUIRED_PERMISSION
+        }, REQUEST_LOCATION_PERMISSION_REQUEST_CODE);
     }
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -208,6 +219,7 @@ public class MainActivity extends AppCompatActivity implements
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                         // Show a dialog to request the user changes the settings.
                         try {
+                            status.
                             status.startResolutionForResult(
                                     MainActivity.this,
                                     REQUEST_CHECK_SETTINGS_CODE);
@@ -238,11 +250,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         googleApiClient = null;
-        if (connectionResult.hasResolution()) {
-            // TODO: Allow the user to resolve the issue.
-        } else {
-            Toast.makeText(this, R.string.error_google_play_services_no_resolution, Toast.LENGTH_LONG).show();
-            // TODO: Unset the user's current location.
-        }
+        Toast.makeText(this, R.string.error_google_play_services_no_resolution, Toast.LENGTH_LONG).show();
     }
 }

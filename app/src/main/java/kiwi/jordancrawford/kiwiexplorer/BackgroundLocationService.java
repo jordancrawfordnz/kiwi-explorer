@@ -157,6 +157,8 @@ public class BackgroundLocationService extends Service implements
                     }
                 }
             });
+        } else {
+            onCannotGetLocation();
         }
     }
 
@@ -164,7 +166,12 @@ public class BackgroundLocationService extends Service implements
      * Called if location cannot be determined for any reason. This unsets the current location.
      */
     public void onCannotGetLocation() {
-        // TODO: Unset the current location.
+        CityData currentCityData = DatabaseHelper.getInstance(getApplicationContext()).getCurrentCity();
+        if (currentCityData != null) {
+            System.out.println("Cannot get location, clearing city");
+            currentCityData.setCurrentLocation(false);
+            DatabaseHelper.getInstance(getApplicationContext()).updateCityData(currentCityData);
+        }
     }
 
     /**
