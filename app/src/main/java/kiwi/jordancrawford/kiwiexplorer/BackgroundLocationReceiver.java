@@ -17,6 +17,8 @@ import com.google.android.gms.location.LocationResult;
 import javax.crypto.spec.DHGenParameterSpec;
 
 /**
+ * Receives location updates and updates the database as appropriate.
+ *
  * Created by Jordan on 28/09/16.
  */
 public class BackgroundLocationReceiver extends BroadcastReceiver {
@@ -34,7 +36,12 @@ public class BackgroundLocationReceiver extends BroadcastReceiver {
         cityResultReceiver = new CityResultReceiver(new Handler());
     }
 
-
+    /**
+     * Receives a LocationResult and requests the city if appropriate.
+     *
+     * @param context
+     * @param intent
+     */
     @Override
     public void onReceive(Context context, Intent intent) {
         this.context = context.getApplicationContext();
@@ -62,6 +69,9 @@ public class BackgroundLocationReceiver extends BroadcastReceiver {
         }
     }
 
+    /**
+     * Receives a city name result. This then updates the city in the database.
+     */
     @SuppressLint("ParcelCreator")
     class CityResultReceiver extends ResultReceiver {
         public CityResultReceiver(Handler handler) {
@@ -102,6 +112,7 @@ public class BackgroundLocationReceiver extends BroadcastReceiver {
                 lastLocationRetreiveSuccess = false;
             }
 
+            // If should unset the current location, do it.
             if (shouldUnsetCurrentLocation && currentCityData != null) {
                 currentCityData.setCurrentLocation(false);
                 DatabaseHelper.getInstance(context).updateCityData(currentCityData);

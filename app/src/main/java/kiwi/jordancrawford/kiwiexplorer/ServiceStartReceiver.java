@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 
 /**
+ * Receives the boot and providers changed intents and starts the service.
+ *
  * Created by Jordan on 22/09/16.
  */
 public class ServiceStartReceiver extends BroadcastReceiver {

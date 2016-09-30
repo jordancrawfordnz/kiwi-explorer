@@ -24,6 +24,8 @@ import java.text.DateFormat;
 import java.util.Date;
 
 /**
+ * The background location service. This is always running and watches for location changes.
+ *
  * Created by Jordan on 22/09/16.
  */
 public class BackgroundLocationService extends Service implements

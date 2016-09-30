@@ -36,6 +36,9 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * Displays a list of cities.
+ */
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -140,6 +143,9 @@ public class MainActivity extends AppCompatActivity implements
         super.onStop();
     }
 
+    /**
+     * Fills in all data abbout cities and sets up the subtitle with the number of cities seen.
+     */
     private void loadCities() {
         try {
             cities.clear();
@@ -166,6 +172,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     // == Location permissions
+
+    /**
+     * Checks the location permissions and requests permissions where appropriate.
+     */
     private void checkLocationPermission() {
         if (PermissionHelper.hasPermission(this)) {
             onHaveLocationPermission();
@@ -189,12 +199,22 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * Sends the request for permissions.
+     */
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(this, new String[]{
                 PermissionHelper.REQUIRED_PERMISSION
         }, REQUEST_LOCATION_PERMISSION_REQUEST_CODE);
     }
 
+    /**
+     * Handle the result for requesting permission. If have the permission, continue onto onHaveLocationPermission.
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         // If the user accepted the location permission, request the location.
         if (requestCode == REQUEST_LOCATION_PERMISSION_REQUEST_CODE) {
@@ -205,6 +225,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     // == Location settings
+
+    /**
+     * Check if the location settings are valid. If not, then do something about it. If it is or there is nothing we can do about it, don't do anything as the service can handle it.
+     */
     private void checkLocationSettings() {
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(LocationSettingHelper.getLocationRequest());
@@ -219,7 +243,6 @@ public class MainActivity extends AppCompatActivity implements
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                         // Show a dialog to request the user changes the settings.
                         try {
-                            status.
                             status.startResolutionForResult(
                                     MainActivity.this,
                                     REQUEST_CHECK_SETTINGS_CODE);

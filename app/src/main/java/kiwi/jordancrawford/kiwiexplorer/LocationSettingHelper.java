@@ -3,6 +3,8 @@ package kiwi.jordancrawford.kiwiexplorer;
 import com.google.android.gms.location.LocationRequest;
 
 /**
+ * A helper for the location settings.
+ *
  * Created by Jordan on 28/09/16.
  */
 public class LocationSettingHelper {

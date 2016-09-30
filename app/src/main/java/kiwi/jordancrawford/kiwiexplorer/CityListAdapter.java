@@ -16,6 +16,8 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 
 /**
+ * An adapter for the city list in the main activity.
+ *
  * Created by Jordan on 29/09/16.
  */
 public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityViewHolder> {
@@ -36,6 +38,10 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityVi
         private TextView cityName, currentLocationText;
         private ImageView cityPicture, citySeenIcon;
 
+        /**
+         * Setup objects for the components of the view.
+         * @param view
+         */
         public CityViewHolder(View view) {
             super(view);
             this.view = view;
@@ -45,6 +51,10 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityVi
             this.citySeenIcon = (ImageView)view.findViewById(R.id.city_list_have_seen);
         }
 
+        /**
+         * Fill in the views for a city.
+         * @param city
+         */
         public void setupView(final City city) {
             cityName.setText(city.getName());
             cityPicture.setImageResource(context.getResources().getIdentifier(city.getPictureResourceName(), "drawable", context.getPackageName()));
@@ -56,11 +66,14 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityVi
                 currentLocationText.setText("");
             }
 
+            // Change the citySeenIcon based on whether a city has been seen or not.
             if (city.getCityData() != null && city.getCityData().isCitySeen()) {
                 citySeenIcon.setImageResource(R.drawable.ic_checkbox_marked_circle_white_48dp);
             } else {
                 citySeenIcon.setImageResource(R.drawable.ic_checkbox_blank_circle_outline_white_48dp);
             }
+
+            // Send a broadcast when the city seen icon is clicked.
             citySeenIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -70,6 +83,7 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityVi
                 }
             });
 
+            // Send a broadcast when the city is clicked.
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -81,12 +95,24 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityVi
         }
     }
 
+    /**
+     * Setup a view holder.
+     *
+     * @param parent
+     * @param viewType
+     * @return
+     */
     public CityViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // Create the view to display the city.
         View inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_city_view, parent, false);
         return new CityViewHolder(inflatedView);
     }
 
+    /**
+     * Setup a view holder with a city.
+     * @param holder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(CityViewHolder holder, int position) {
         // Get the item for this index.

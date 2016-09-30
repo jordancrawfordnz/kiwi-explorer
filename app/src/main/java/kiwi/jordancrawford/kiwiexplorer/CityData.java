@@ -1,6 +1,8 @@
 package kiwi.jordancrawford.kiwiexplorer;
 
 /**
+ * Represents information about a city in the database.
+ *
  * Created by Jordan on 29/09/16.
  */
 public class CityData {

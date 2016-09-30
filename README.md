@@ -15,4 +15,7 @@ User's can touch a city to see it's location on a map.
 ## How does the app work?
 An always running background service watches for location updates. This updates the seen cities and current city in the database. This service starts with the phone and detects changes to the user's location settings.
 
-Database updates notify the main activity if it is running, so the view is refreshed. The main activity is responsible for ensuring the app has the required permissions and location is enabled.
+Database updates notify the main activity (if it is running) so the view is refreshed when the service makes a change. The main activity is responsible for ensuring the app has the required permissions and location is enabled.
+
+## Testing the app
+The automatic seen city updating feature uses the current location. To test this, a fake GPS app can be used. One example of such an app is [Fake GPS Location Spoofer](https://play.google.com/store/apps/details?id=com.incorporateapps.fakegps.fre&hl=en).

@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Locale;
 
 /**
+ * Fetches the name of the city.
+ *
  * Created by Jordan on 22/09/16.
  */
 public class FetchCityIntentService extends IntentService {

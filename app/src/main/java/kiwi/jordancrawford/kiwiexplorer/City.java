@@ -4,6 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
+ * Represents a city from the data JSON file.
+ *
  * Created by Jordan on 29/09/16.
  */
 public class City implements Parcelable {

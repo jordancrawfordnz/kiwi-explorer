@@ -17,11 +17,20 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
+ * Helpers to get cities from the JSON file or database.
+ *
  * Created by Jordan on 29/09/16.
  */
 public class Cities {
     private static ArrayList<City> cities = null;
 
+    /**
+     * Builds a city from a JSON object.
+     *
+     * @param jsonCity
+     * @return
+     * @throws JSONException
+     */
     private static City buildCityFromJSON(JSONObject jsonCity) throws JSONException {
         City city = new City();
         city.setName(jsonCity.getString("name"));
@@ -31,6 +40,14 @@ public class Cities {
         return city;
     }
 
+    /**
+     * Sets up city data from an input stream of JSON.
+     *
+     * @param jsonInput
+     * @return
+     * @throws IOException
+     * @throws JSONException
+     */
     public static ArrayList<City> setupData(InputStream jsonInput) throws IOException, JSONException {
         ArrayList<City> cities = new ArrayList<>();
         // Read from the JSON file.
@@ -59,6 +76,13 @@ public class Cities {
         return cities;
     }
 
+    /**
+     * Gets all cities. Either returns the last read cities or gets cities from the file if not read yet.
+     * @param context
+     * @return
+     * @throws IOException
+     * @throws JSONException
+     */
     public static ArrayList<City> getCities(Context context) throws IOException, JSONException {
         if (cities == null) {
             cities = setupData(context.getApplicationContext().getResources().openRawResource(R.raw.cities));
@@ -66,6 +90,13 @@ public class Cities {
         return cities;
     }
 
+    /**
+     * Fills in CityData objects on the cities. CityData objects contain the city information from the database, such as the current location and if the city has been seen.
+     *
+     * @param context
+     * @throws IOException
+     * @throws JSONException
+     */
     public static void fillInCityData(Context context) throws IOException, JSONException {
         ArrayList<City> cities = getCities(context);
 

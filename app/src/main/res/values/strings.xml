@@ -6,6 +6,6 @@
     <string name="error_google_play_services_no_resolution">Could not connect to Google Play services. Location will not be automatically updated.</string>
     <string name="current_location_text">Current Location</string>
     <string name="cities_seen_format">%1$d/%2$d cities seen</string>
-    <string name="permission_snackbar_explainer">Location permission required to update the places you've seen.</string>
+    <string name="permission_snackbar_explainer">Location permission required to update the places you have seen.</string>
     <string name="permission_snackbar_action">Set Permissions</string>
 </resources>
