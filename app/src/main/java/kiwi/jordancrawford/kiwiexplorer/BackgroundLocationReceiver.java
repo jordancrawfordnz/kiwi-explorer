@@ -104,7 +104,7 @@ public class BackgroundLocationReceiver extends BroadcastReceiver {
                     }
 
                     // If the current city is undefined or the same as this city, don't unset the current location.
-                    if (currentCityData == null || currentCityData.getCityName().equals(newCurrentCityData.getCityName())) {
+                    if (currentCityData == null || newCurrentCityData == null || currentCityData.getCityName().equals(newCurrentCityData.getCityName())) {
                         shouldUnsetCurrentLocation = false;
                     }
                 }
