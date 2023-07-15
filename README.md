@@ -1,6 +1,12 @@
 # Kiwi Explorer
-Jordan Crawford, 1196240
 
+---
+
+**Please note:** This project is not actively maintained, it may no longer work and may depend on out of date dependencies.
+
+---
+
+Jordan Crawford
 COMP448, Semester B, 2016
 
 Targeted for Android Lollipop and higher.
